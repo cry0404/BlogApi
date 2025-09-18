@@ -7,7 +7,7 @@ import (
 
 	"BlogApi/utils"
 	config "BlogApi/config"
-	feishu "BlogApi/internal/feishu"
+
 
 
 )
@@ -38,7 +38,7 @@ func main(){
 		log.Fatalf("更新失败: %v, 请检查错误", err)
 	}
 	
-	feishu.ExampleUsage()
+
 
 }
 

@@ -7,6 +7,7 @@ feishu:
   app_secret: "your_feishu_app_secret"
   table_id: "your_feishu_table_id"
   app_token: "your_feishu_app_token"
+  download_dir: "your_download_dir_for_image"
 
 # B站配置 (待实现)
 bilibili:

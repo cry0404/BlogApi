@@ -3,3 +3,6 @@ Develop.md
 test/
 internal/feishu/test.json
 config/config.yaml
+public/
+*.json
+.DS_Store
