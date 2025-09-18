@@ -1,0 +1,65 @@
+package config
+
+import (
+	"fmt"
+
+	"github.com/spf13/viper"
+)
+
+type Config struct {
+	FeiShu   FeiShuConfig
+	Bilibili BiliBiliConfig
+	Steam    SteamConfig
+}
+
+type FeiShuConfig struct {
+	FeiShuAppID     string `mapstructure:"app_id"`
+	FeiShuAppSecret string `mapstructure:"app_secret"`
+	FeiShuTableID   string `mapstructure:"table_id"`
+	FeiShuAppToken  string `mapstructure:"app_token"`
+	DownLoadDir     string `mapstructure:"download_dir"`
+}
+
+type BiliBiliConfig struct {
+}
+
+type SteamConfig struct {
+}
+
+func LoadConfig() (*Config, error) {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
+
+	viper.SetEnvPrefix("BLOGAPI")
+	viper.AutomaticEnv()
+
+	viper.BindEnv("feishu.app_id", "BLOGAPI_FEISHU_APP_ID")
+	viper.BindEnv("feishu.app_secret", "BLOGAPI_FEISHU_APP_SECRET")
+	viper.BindEnv("feishu.table_id", "BLOGAPI_FEISHU_TABLE_ID")
+	viper.BindEnv("feishu.app_token", "BLOGAPI_FEISHU_APP_TOKEN")
+	viper.BindEnv("feishu.download_dir", "BLOGAPI_FEISHU_DOWNLOAD_DIR")
+
+	viper.SetDefault("feishu.app_id", "")
+	viper.SetDefault("feishu.app_secret", "")
+	viper.SetDefault("feishu.table_id", "")
+	viper.SetDefault("feishu.app_token", "")
+	viper.SetDefault("feishu.download_dir", "./public/bookcase")
+
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			fmt.Println("配置文件未找到，使用默认值和环境变量")
+		} else {
+			return nil, fmt.Errorf("读取配置文件失败: %w", err)
+		}
+	}
+
+	var config Config
+	if err := viper.Unmarshal(&config); err != nil {
+		return nil, fmt.Errorf("解析配置失败: %w", err)
+	}
+
+	return &config, nil
+}
