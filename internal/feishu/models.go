@@ -12,6 +12,7 @@ type BookRecord struct {
 	Comment         string 		`json:"书评,omitempty"`
 	RecordID		string      `json:"record_id"`
 	ImageDir		string
+	HasDownload		bool
 }
 
 type Account struct {
@@ -24,5 +25,18 @@ type TokenResponse struct {
 	Msg		string	`json:"msg"`
 	Token	string  `json:"tenant_access_token"`
 	Expire  int
+}
+
+
+//用于存储在 json 中的结构
+type BookInfo struct {
+	Title           string 		
+	Author          string 		
+	ReadDate        string      
+	RecommendStatus string      
+	Tag             string      
+	Description     string 		
+	Comment         string 		
+	ImageDir		string
 }
 

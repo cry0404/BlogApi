@@ -4,5 +4,5 @@ test/
 internal/feishu/test.json
 config/config.yaml
 public/
-*.json
+*.ndjson
 .DS_Store

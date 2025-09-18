@@ -46,10 +46,12 @@ func downloadImage(cfg *config.Config, bookRecords *[]BookRecord) error {
 	for i := range s {
 		br := &s[i]
 		if _, ok := downloaded[br.RecordID]; ok {
+			br.HasDownload = true //这里作为 true
 			continue
 		}
 		if p, ok := findExistingImagePath(br.ConverImage); ok {
 			webpPath := imagePathFor(br.ConverImage, ".webp")
+			br.HasDownload = true
 			if filepath.Ext(p) != ".webp" {
 				if _, err := os.Stat(webpPath); err != nil {
 					_ = convertToWebp(p, webpPath)
@@ -63,7 +65,7 @@ func downloadImage(cfg *config.Config, bookRecords *[]BookRecord) error {
 			downloaded[br.RecordID] = struct{}{}
 			newly = append(newly, br.RecordID)
 			continue
-		}
+		} //说明已经存在了，这里说明以前都下载过
 
 		if p, err := downloadAsWebp(br.ConverImage, token); err != nil {
 			continue

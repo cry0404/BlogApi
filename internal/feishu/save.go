@@ -20,7 +20,13 @@ func saveAsJson( bookRecords []BookRecord) error{
 	enc.SetIndent("", " ")
 
 	for _, bookRecord := range bookRecords {
-		if err := enc.Encode(bookRecord); err != nil {
+
+		if bookRecord.HasDownload {
+			//说明这次请求不是第一次下载了
+			continue
+		}
+		bookinfo := convertToInfo(bookRecord)
+		if err := enc.Encode(bookinfo); err != nil {
 			return fmt.Errorf("编码 json 时发生错误")
 		}
 	}
@@ -29,4 +35,18 @@ func saveAsJson( bookRecords []BookRecord) error{
 	}
 	
 	return nil
+}
+
+func convertToInfo(bookRecord BookRecord) BookInfo {
+	return BookInfo {
+			Title: bookRecord.Title,
+			Author: bookRecord.Author,
+			ReadDate: bookRecord.ReadDate,
+			RecommendStatus: bookRecord.RecommendStatus,
+			Tag: bookRecord.Tag,
+			Description: bookRecord.Description,
+			Comment: bookRecord.Comment,
+			ImageDir: bookRecord.ImageDir,
+		}
+	
 }
