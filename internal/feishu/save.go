@@ -9,7 +9,7 @@ import (
 
 
 func saveAsJson( bookRecords []BookRecord) error{
-	file, err := os.OpenFile("./feishu.ndjson", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+	file, err := os.OpenFile("./config/feishu.ndjson", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
