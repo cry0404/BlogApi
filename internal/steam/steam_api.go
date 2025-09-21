@@ -25,6 +25,7 @@ func GetOwnedGames(cfg *config.Config) ([]Game, error) {
 	for _, game := range apiResponse.Response.Games {
 		gameInfos = append(gameInfos, Game{
 			Name:            game.Name,
+			APPID:           game.APPID,
 			PlaytimeForever: game.PlaytimeForever,
 			RtimeLastPlayed: game.RtimeLastPlayed,
 			ImgIconURL:      game.ImgIconURL,
@@ -50,7 +51,7 @@ func GetRecentlyPlayedGames(cfg *config.Config) ([]Game, error) {
 	return apiResponse.Response.Games, nil
 }
 
-// 获取用户基本信息
+// 获取用户基本信息, 这里也许可以考虑每次用 steam 请求渲染
 func GetPlayerSummaries(cfg *config.Config) (*Player, error) {
 	resp, err := http.Get(playerSummariesURL)
 	if err != nil {

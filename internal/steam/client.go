@@ -25,20 +25,26 @@ func initSteamConfig(cfg *config.Config) {
 func UpdateGames(cfg *config.Config) error {
 	initSteamConfig(cfg)
 	games, err := GetOwnedGames(cfg)
+	//测试
+	/*
+	for _, game := range games {
+		fmt.Println("id 是", game.APPID)
+	}*/
 	if err != nil {
 		return fmt.Errorf("failed to get owned games: %w", err)
 	}
 
+	err = DownloadImages(games)
+
+	if err != nil {
+		return err
+	}
+
+	//err = saveAsJson()
 	// 这里可以添加将游戏数据保存到数据库或文件的逻辑
-	fmt.Printf("获取到 %d 个游戏\n", len(games))
+	//fmt.Printf("获取到 %d 个游戏\n", len(games))
 
 	return nil
 }
 
 
-func buildImageUrl(imgURL string, appid string) string {
-
-
-
-	return ""
-}

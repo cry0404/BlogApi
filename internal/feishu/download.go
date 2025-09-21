@@ -170,7 +170,6 @@ func convertToWebp(srcPath string, dstPath string) error {
 	}
 	defer in.Close()
 
-	// 注册常见解码器，应该是和注册数据库驱动一样的道理？
 	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
 	image.RegisterFormat("jpg", "jpg", jpeg.Decode, jpeg.DecodeConfig)
 	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
@@ -226,7 +225,11 @@ func encodeWebp(img image.Image, dst string) error {
 		return err
 	}
 	defer f.Close()
-	if err := webpenc.Encode(f, img, &webpenc.Options{Quality: 75}); err != nil {
+	if err := webpenc.Encode(f, img, &webpenc.Options{
+		Quality: 75,
+		Lossless: false,
+		Exact: false,
+		}); err != nil {
 		return err
 	}
 	return nil

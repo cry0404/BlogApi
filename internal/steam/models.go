@@ -17,6 +17,7 @@ type Game struct {
 	PlaytimeForever int     `json:"playtime_forever"`
 	RtimeLastPlayed int64   `json:"rtime_last_played"`
 	ImgIconURL      string  `json:"img_icon_url"`
+	Comment  		string    //为以后的评测保留
 }
 
 type PlayerSummariesAPIResponse struct {

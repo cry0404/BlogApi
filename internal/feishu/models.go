@@ -1,5 +1,21 @@
 package feishu
 
+
+type Record struct {
+	BookRecord
+	FilmRecord
+	AnimeRecord
+}
+
+
+type FilmRecord struct {
+
+}
+
+type AnimeRecord struct {
+
+}
+
 type BookRecord struct {
 	//理论上都该是 string
 	Title           string 		`json:"书名,omitempty"`
@@ -14,6 +30,8 @@ type BookRecord struct {
 	ImageDir		string
 	HasDownload		bool
 }
+
+
 
 type Account struct {
 	APPID  		string 	`json:"app_id"`

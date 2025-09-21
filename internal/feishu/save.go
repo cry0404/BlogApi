@@ -7,9 +7,9 @@ import (
 	"os"
 )
 
-
+//根据 type 写入不同 json 文件， switch 判断类型
 func saveAsJson( bookRecords []BookRecord) error{
-	file, err := os.OpenFile("./config/feishu.ndjson", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+	file, err := os.OpenFile("./config/book.ndjson", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
