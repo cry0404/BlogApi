@@ -3,6 +3,7 @@ package utils
 import (
 	config "BlogApi/config"
 	feishu "BlogApi/internal/feishu"
+	steam  "BlogApi/internal/steam"
 	"fmt"
 )
 
@@ -16,7 +17,13 @@ func Update(cfg *config.Config) error {
 	}
 
 	// 别的更新逻辑
+	err = steam.UpdateGames(cfg)
 
-// 下载完成后发起 webhook
+	if err != nil {
+		return fmt.Errorf("更新 steam 失败， 检查错误: %v", err)
+	}
+
+	//可能还有别的更新逻辑？
+
 	return nil
 }

@@ -24,6 +24,8 @@ type BiliBiliConfig struct {
 }
 
 type SteamConfig struct {
+	SteamID 		string `mapstructure:"steam_id"`
+	SteamKey		string `mapstructure:"steam_key"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -40,12 +42,17 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("feishu.table_id", "BLOGAPI_FEISHU_TABLE_ID")
 	viper.BindEnv("feishu.app_token", "BLOGAPI_FEISHU_APP_TOKEN")
 	viper.BindEnv("feishu.download_dir", "BLOGAPI_FEISHU_DOWNLOAD_DIR")
+	viper.BindEnv("steam.steam_id", "BLOGAPI_STEAM_ID")
+	viper.BindEnv("steam.steam_key", "BLOGAPI_STEAM_key")
+
 
 	viper.SetDefault("feishu.app_id", "")
 	viper.SetDefault("feishu.app_secret", "")
 	viper.SetDefault("feishu.table_id", "")
 	viper.SetDefault("feishu.app_token", "")
 	viper.SetDefault("feishu.download_dir", "./public/bookcase")
+	viper.BindEnv("steam.steam_id", "")
+	viper.BindEnv("steam.steam_key", "")
 
 
 	if err := viper.ReadInConfig(); err != nil {
