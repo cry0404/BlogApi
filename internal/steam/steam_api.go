@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// 获取拥有的游戏列表
+// 获取拥有的游戏列表， 可以保证每次都有
 func GetOwnedGames(cfg *config.Config) ([]Game, error) {
 
 	resp, err := http.Get(ownedGamesURL)

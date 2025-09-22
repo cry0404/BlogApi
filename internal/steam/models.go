@@ -20,6 +20,15 @@ type Game struct {
 	Comment  		string    //为以后的评测保留
 }
 
+type GameInfo struct {
+
+	Name            string  `json:"name"`
+	ImagePath		string  `json:"image_path"` //这里直接根据 appid 转换得到
+	PlaytimeForever int     `json:"playtime_forever"`
+	RtimeLastPlayed int64   `json:"rtime_last_played"`
+	Comment  		string  `json:"comment"`  //为以后的评测保留
+}
+
 type PlayerSummariesAPIResponse struct {
 	Response PlayerSummariesResponse `json:"response"`
 }

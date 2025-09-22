@@ -17,7 +17,7 @@ import (
 
 	"github.com/chai2010/webp"
 )
-
+//也许可以设置一个 downloader 来控制并发量来并发下载 steam 图片
 //依据 appid 判断是否存在
 var SteamPath = "./public/steam"
 func buildDownloadUrl(appid int, icon string) string {

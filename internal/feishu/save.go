@@ -37,8 +37,8 @@ func saveAsJson( bookRecords []BookRecord) error{
 	return nil
 }
 
-func convertToInfo(bookRecord BookRecord) BookInfo {
-	return BookInfo {
+func convertToInfo(bookRecord BookRecord) *BookInfo {
+	return &BookInfo {
 			Title: bookRecord.Title,
 			Author: bookRecord.Author,
 			ReadDate: bookRecord.ReadDate,
