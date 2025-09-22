@@ -10,7 +10,7 @@ import (
 //这里应该依次更新所有客户端的配置
 func Update(cfg *config.Config) error {
 
-	err := feishu.UpdateBookCase(cfg)
+	err := feishu.UpdateFeiShu(cfg)
 
 	if err != nil {
 		return fmt.Errorf("更新书架失败，检查错误: %v", err)

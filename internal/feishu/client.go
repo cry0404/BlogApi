@@ -9,7 +9,7 @@ import (
 
 
 
-func UpdateBookCase(cfg *config.Config) error {
+func UpdateFeiShu(cfg *config.Config) error {
 	client := lark.NewClient(cfg.FeiShu.FeiShuAppID, cfg.FeiShu.FeiShuAppSecret)
 
 	bookRecords, err := getRecords(client, cfg)

@@ -26,7 +26,7 @@ func getRecords(client *lark.Client, cfg *config.Config) ([]BookRecord, error) {
 	req := larkbitable.
 	NewSearchAppTableRecordReqBuilder().
 	AppToken(cfg.FeiShu.FeiShuAppToken).
-	TableId(cfg.FeiShu.FeiShuTableID).
+	TableId(cfg.FeiShu.BookTableID).
 	PageSize(20).
 	Body(larkbitable.NewSearchAppTableRecordReqBodyBuilder().Build()).
 	Build()
