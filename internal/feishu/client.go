@@ -4,45 +4,74 @@ import (
 	config "BlogApi/config"
 	"fmt"
 
-	"github.com/larksuite/oapi-sdk-go/v3"
+	lark "github.com/larksuite/oapi-sdk-go/v3"
 )
-
-
 
 func UpdateFeiShu(cfg *config.Config) error {
 	client := lark.NewClient(cfg.FeiShu.FeiShuAppID, cfg.FeiShu.FeiShuAppSecret)
 
-	bookRecords, err := getRecords(client, cfg)
-	
+	// 处理书籍记录
+	bookRecords, err := getBookRecords(client, cfg)
 	if err != nil {
 		return fmt.Errorf("获取书籍记录失败: %v", err)
 	}
 
-	
-	
-	err = downloadImage(cfg, &bookRecords)
-
-	if err != nil {
-		return fmt.Errorf("下载图片失败: %v", err)
+	bookRecordsInterface := make([]Record, len(bookRecords))
+	for i := range bookRecords {
+		bookRecordsInterface[i] = &bookRecords[i]
 	}
 
-	//打印测试 
-	/*
-	for _, bookRecord := range bookRecords {
-		fmt.Println(bookRecord)
-	}*/
-
-	err = saveAsJson(bookRecords)
-
+	err = DownloadImages(cfg, bookRecordsInterface, BookRecordType)
 	if err != nil {
-		return fmt.Errorf("保存为 json 失败: %v", err)
+		return fmt.Errorf("下载书架图片失败: %v", err)
 	}
-	//下载图片，然后处理， 或者上传到 cdn cf 待实现
 
-	
-	fmt.Println("更新成功!开始尝试 webhook")
+	err = SaveAsJSON(bookRecordsInterface, BookRecordType)
+	if err != nil {
+		return fmt.Errorf("保存书籍为 json 失败: %v", err)
+	}
+
+	// 处理动漫记录
+	animeRecords, err := getAnimeRecords(client, cfg)
+	if err != nil {
+		return fmt.Errorf("获取动漫记录失败: %v", err)
+	}
+
+	animeRecordsInterface := make([]Record, len(animeRecords))
+	for i := range animeRecords {
+		animeRecordsInterface[i] = &animeRecords[i]
+	}
+
+	err = DownloadImages(cfg, animeRecordsInterface, AnimeRecordType)
+	if err != nil {
+		return fmt.Errorf("下载动漫图片失败: %v", err)
+	}
+
+	err = SaveAsJSON(animeRecordsInterface, AnimeRecordType)
+	if err != nil {
+		return fmt.Errorf("保存动漫为 json 失败: %v", err)
+	}
+
+	// 处理电影记录
+	movieRecords, err := getMovieRecords(client, cfg)
+	if err != nil {
+		return fmt.Errorf("获取电影记录失败: %v", err)
+	}
+
+	movieRecordsInterface := make([]Record, len(movieRecords))
+	for i := range movieRecords {
+		movieRecordsInterface[i] = &movieRecords[i]
+	}
+
+	err = DownloadImages(cfg, movieRecordsInterface, MovieRecordType)
+	if err != nil {
+		return fmt.Errorf("下载电影图片失败: %v", err)
+	}
+
+	err = SaveAsJSON(movieRecordsInterface, MovieRecordType)
+	if err != nil {
+		return fmt.Errorf("保存电影为 json 失败: %v", err)
+	}
+
 	return nil
 }
-
-
-

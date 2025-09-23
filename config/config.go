@@ -19,7 +19,6 @@ type FeiShuConfig struct {
 	MovieTableID    string `mapstructure:"movie_table_id"`
 	AnimeTableID    string `mapstructure:"anime_table_id"`
 	FeiShuAppToken  string `mapstructure:"app_token"`
-	DownLoadDir     string `mapstructure:"download_dir"`
 }
 
 type BiliBiliConfig struct {
@@ -45,7 +44,6 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("feishu.movie_table_id", "BLOGAPI_FEISHU_MOVIE_TABLE_ID")
 	viper.BindEnv("feishu.anime_table_id", "BLOGAPI_FEISHU_ANIME_TABLE_ID")
 	viper.BindEnv("feishu.app_token", "BLOGAPI_FEISHU_APP_TOKEN")
-	viper.BindEnv("feishu.download_dir", "BLOGAPI_FEISHU_DOWNLOAD_DIR")
 	viper.BindEnv("steam.steam_id", "BLOGAPI_STEAM_ID")
 	viper.BindEnv("steam.steam_key", "BLOGAPI_STEAM_key")
 
@@ -55,7 +53,6 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("feishu.movie_table_id", "")
 	viper.SetDefault("feishu.anime_table_id", "")
 	viper.SetDefault("feishu.app_token", "")
-	viper.SetDefault("feishu.download_dir", "./public/bookcase")
 	viper.BindEnv("steam.steam_id", "")
 	viper.BindEnv("steam.steam_key", "")
 

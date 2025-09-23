@@ -19,65 +19,63 @@ import (
 	webpenc "github.com/chai2010/webp"
 )
 
-//需要先获取 filetoken
-// 下载素材
-// GET https://open.feishu.cn/open-apis/drive/v1/medias/:file_token/download
-
-// 获取 token
-// POST https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal
-
-// 获取临时下载链接
-// GET https://open.feishu.cn/open-apis/drive/v1/medias/batch_get_tmp_download_url
-
-func downloadImage(cfg *config.Config, bookRecords *[]BookRecord) error {
+func DownloadImages[T Record](cfg *config.Config, records []T, recordType RecordType) error {
 	token, err := getAccessToken(cfg)
 	if err != nil {
 		return err
 	}
 
-	indexPath := filepath.Join(cfg.FeiShu.DownLoadDir, "record.ndjson")
+	// 根据记录类型确定下载目录
+	var downloadDir string
+	switch recordType {
+	case BookRecordType:
+		downloadDir = filepath.Join("public", "bookcase")
+	case AnimeRecordType:
+		downloadDir = filepath.Join("public", "anime")
+	case MovieRecordType:
+		downloadDir = filepath.Join("public", "movie")
+	default:
+		return fmt.Errorf("unsupported record type: %s", recordType)
+	}
+
+	indexPath := filepath.Join(downloadDir, "record.ndjson")
 	downloaded, err := loadIndex(indexPath)
 	if err != nil {
 		return fmt.Errorf("load index failed: %w", err)
 	}
 
 	var newly []string
-	s := *bookRecords
-	for i := range s {
-		br := &s[i]
-		if _, ok := downloaded[br.RecordID]; ok {
-			br.HasDownload = true //这里作为 true
+	for i := range records {
+		record := records[i]
+		if _, ok := downloaded[record.GetRecordID()]; ok {
+			record.SetHasDownload(true)
 			continue
 		}
-		if p, ok := findExistingImagePath(br.ConverImage); ok {
-			webpPath := imagePathFor(br.ConverImage, ".webp")
-			br.HasDownload = true
+
+		if p, ok := findExistingImagePath(record.GetCoverImage(), downloadDir); ok {
+			webpPath := imagePathFor(record.GetCoverImage(), ".webp", downloadDir)
+			record.SetHasDownload(true)
 			if filepath.Ext(p) != ".webp" {
 				if _, err := os.Stat(webpPath); err != nil {
 					_ = convertToWebp(p, webpPath)
 				}
-				br.ImageDir = webpPath
-				//fmt.Printf("webpath(existing->webp): %s\n", br.ImageDir)
+				record.SetImageDir(webpPath)
 			} else {
-				br.ImageDir = p
-				//fmt.Printf("webpath(existing): %s\n", br.ImageDir)
+				record.SetImageDir(p)
 			}
-			downloaded[br.RecordID] = struct{}{}
-			newly = append(newly, br.RecordID)
+			downloaded[record.GetRecordID()] = struct{}{}
+			newly = append(newly, record.GetRecordID())
 			continue
-		} //说明已经存在了，这里说明以前都下载过
+		}
 
-		if p, err := downloadAsWebp(br.ConverImage, token); err != nil {
+		if p, err := downloadAsWebp(record.GetCoverImage(), token, downloadDir); err != nil {
 			continue
 		} else {
-			br.ImageDir = p
-			//fmt.Printf("webpath(downloaded): %s\n", br.ImageDir)
+			record.SetImageDir(p)
 		}
-		downloaded[br.RecordID] = struct{}{}
-		newly = append(newly, br.RecordID)
+		downloaded[record.GetRecordID()] = struct{}{}
+		newly = append(newly, record.GetRecordID())
 	}
-
-	*bookRecords = s
 
 	if len(newly) > 0 {
 		if err := appendIndex(indexPath, newly); err != nil {
@@ -135,10 +133,10 @@ func appendIndex(path string, ids []string) error {
 	return nil
 }
 
-func findExistingImagePath(url string) (string, bool) {
+func findExistingImagePath(url string, downloadDir string) (string, bool) {
 	// 尝试常见扩展名
 	for _, ext := range []string{".jpg", ".png", ".webp", ".bin"} {
-		p := imagePathFor(url, ext)
+		p := imagePathFor(url, ext, downloadDir)
 		if _, err := os.Stat(p); err == nil {
 			return p, true
 		}
@@ -155,12 +153,12 @@ func fileTokenFromURL(u string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-func imagePathFor(u string, ext string) string {
+func imagePathFor(u string, ext string, downloadDir string) string {
 	token := fileTokenFromURL(u)
 	if ext == "" {
 		ext = ".bin"
 	}
-	return filepath.Join("public", "bookcase", token+ext)
+	return filepath.Join(downloadDir, token+ext)
 }
 
 func convertToWebp(srcPath string, dstPath string) error {
@@ -182,7 +180,7 @@ func convertToWebp(srcPath string, dstPath string) error {
 	return encodeWebp(img, dstPath)
 }
 
-func downloadAsWebp(url, token string) (string, error) {
+func downloadAsWebp(url, token string, downloadDir string) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
@@ -209,7 +207,7 @@ func downloadAsWebp(url, token string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("decode image failed: %w", err)
 	}
-	dst := imagePathFor(url, ".webp")
+	dst := imagePathFor(url, ".webp", downloadDir)
 	if err := encodeWebp(img, dst); err != nil {
 		return "", err
 	}
@@ -226,10 +224,10 @@ func encodeWebp(img image.Image, dst string) error {
 	}
 	defer f.Close()
 	if err := webpenc.Encode(f, img, &webpenc.Options{
-		Quality: 75,
+		Quality:  75,
 		Lossless: false,
-		Exact: false,
-		}); err != nil {
+		Exact:    false,
+	}); err != nil {
 		return err
 	}
 	return nil
