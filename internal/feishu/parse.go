@@ -102,7 +102,6 @@ func parseIntField(fields map[string]any, key string) int {
 	}
 }
 
-
 func normalizeUnix(ts int64) (int64, int64) {
 	switch {
 	case ts >= 1e16: // 纳秒 ns（~1.7e18）

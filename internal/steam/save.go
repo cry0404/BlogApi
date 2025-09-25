@@ -41,7 +41,7 @@ func convertGameInfo(game Game) *GameInfo {
 
 	return &GameInfo{
 		Name: game.Name,
-		ImagePath: filepath.Join("public", "steam", strconv.Itoa(game.APPID) + ".wbep"),
+		ImagePath: filepath.Join("public", "steam", strconv.Itoa(game.APPID) + ".webp"),
 		PlaytimeForever: game.PlaytimeForever,
 		RtimeLastPlayed: game.RtimeLastPlayed,
 		Comment: game.Comment,

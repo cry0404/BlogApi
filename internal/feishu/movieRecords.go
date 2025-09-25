@@ -1,35 +1,32 @@
 package feishu
 
-
 import (
-	"fmt"
-	"context"
 	"BlogApi/config"
+	"context"
+	"fmt"
+
 	lark "github.com/larksuite/oapi-sdk-go/v3"
 	larkbitable "github.com/larksuite/oapi-sdk-go/v3/service/bitable/v1"
 )
 
-
-
-
 func getMovieRecords(client *lark.Client, cfg *config.Config) ([]MovieRecord, error) {
 	req := larkbitable.
-	NewSearchAppTableRecordReqBuilder().
-	AppToken(cfg.FeiShu.FeiShuAppToken).
-	TableId(cfg.FeiShu.MovieTableID).
-	PageSize(20).
-	Body(larkbitable.NewSearchAppTableRecordReqBodyBuilder().Build()).
-	Build()
+		NewSearchAppTableRecordReqBuilder().
+		AppToken(cfg.FeiShu.FeiShuAppToken).
+		TableId(cfg.FeiShu.MovieTableID).
+		PageSize(20).
+		Body(larkbitable.NewSearchAppTableRecordReqBodyBuilder().Build()).
+		Build()
 
 	resp, err := client.Bitable.V1.
-	AppTableRecord.Search(context.Background(), req)
+		AppTableRecord.Search(context.Background(), req)
 
 	if err != nil {
 		return nil, fmt.Errorf("请求时发生未知错误: %v", err)
 	}
 
 	if !resp.Success() {
-		
+
 		return nil, fmt.Errorf("API 错误")
 	}
 
@@ -37,10 +34,10 @@ func getMovieRecords(client *lark.Client, cfg *config.Config) ([]MovieRecord, er
 	// 文本字段一般都是 map[string]any
 	for _, item := range resp.Data.Items {
 		f := item.Fields
-		
+
 		title := parseTextField(f, "影名")
 		if title == "" {
-			continue  //跳过为空的部分
+			continue //跳过为空的部分
 		}
 		author := parseTextField(f, "作者")
 		desc := parseTextField(f, "简介")
@@ -50,19 +47,17 @@ func getMovieRecords(client *lark.Client, cfg *config.Config) ([]MovieRecord, er
 		cover := parseFirstFileURL(f, "封面")
 		readDate := parseUnixFieldRFC3339(f, "日期")
 
-		movieRecords = append(movieRecords,  MovieRecord{
-			Title: 			title,
-			Author: 		author,
-			Description: 	desc,
-			Comment:  		comment,
-			Grade: 			grade,
-			Date:			readDate,
-			ConverImage:    cover,
-			RecordID:       *item.RecordId,
-		} )
+		movieRecords = append(movieRecords, MovieRecord{
+			Title:       title,
+			Author:      author,
+			Description: desc,
+			Comment:     comment,
+			Grade:       grade,
+			Date:        readDate,
+			ConverImage: cover,
+			RecordID:    *item.RecordId,
+		})
 	}
-
-
 
 	return movieRecords, nil
 }

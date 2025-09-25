@@ -17,19 +17,24 @@ import (
 
 	"github.com/chai2010/webp"
 )
-//也许可以设置一个 downloader 来控制并发量来并发下载 steam 图片
-//依据 appid 判断是否存在
+
+// 也许可以设置一个 downloader 来控制并发量来并发下载 steam 图片
+// 依据 appid 判断是否存在
 var SteamPath = "./public/steam"
-func buildDownloadUrl(appid int, icon string) string {
 
-	downloadImageURL := fmt.Sprintf("https://media.steampowered.com/steamcommunity/public/images/apps/%d/%s.jpg", appid, icon)
-
-	return downloadImageURL
+// 返回一组高清优先的候选图片 URL，按顺序尝试
+func candidateImageURLs(appid int, icon string) []string {
+	return []string{
+		fmt.Sprintf("https://cdn.cloudflare.steamstatic.com/steam/apps/%d/library_600x900.jpg", appid),
+		fmt.Sprintf("https://cdn.cloudflare.steamstatic.com/steam/apps/%d/library_hero.jpg", appid),
+		fmt.Sprintf("https://media.steampowered.com/steamcommunity/public/images/apps/%d/%s.jpg", appid, icon),
+		fmt.Sprintf("https://cdn.cloudflare.steamstatic.com/steam/apps/%d/header.jpg", appid),
+	}
 }
 
 func DownloadImages(games []Game) error {
 	//先 loadindex
-	client := &http.Client {
+	client := &http.Client{
 		Timeout: 30 * time.Second,
 	}
 
@@ -44,17 +49,23 @@ func DownloadImages(games []Game) error {
 
 	appids := make([]int, 0, len(games))
 	for _, game := range games {
-		url := buildDownloadUrl(game.APPID, game.ImgIconURL)
+		urls := candidateImageURLs(game.APPID, game.ImgIconURL)
 
-		if _, ok := idx[game.APPID]; ok  {
-			continue //如果存在直接跳过
+		// 如果本地已有高清图片则跳过下载；若现有文件过小（低清）则重新下载覆盖
+		target := filepath.Join(SteamPath, strconv.Itoa(game.APPID)+".webp")
+		if fi, statErr := os.Stat(target); statErr == nil && fi.Size() >= 90*1024 {
+			if _, ok := idx[game.APPID]; !ok {
+				appids = append(appids, game.APPID)
+			}
+			continue
 		}
-		err := downloadAndConvertSingleImage(client, url, game.APPID)
-		if err != nil {
+
+		if err := downloadAndConvertSingleImage(client, urls, game.APPID); err != nil {
 			return fmt.Errorf("下载图片时出现错误: %v", err)
-			//log.Printf("下载时发生错误，发生错误的图片是: %v", game.APPID)
 		}
-		appids = append(appids, game.APPID)
+		if _, ok := idx[game.APPID]; !ok {
+			appids = append(appids, game.APPID)
+		}
 		//将返回的 appid 写入 record.ndjson 文件
 
 	}
@@ -69,17 +80,24 @@ func DownloadImages(games []Game) error {
 	return nil
 }
 
-func downloadAndConvertSingleImage(client *http.Client, url string, appid int) error {
-	resp, err := client.Get(url)
-
-	if err != nil {
-		return err
+func downloadAndConvertSingleImage(client *http.Client, urls []string, appid int) error {
+	var resp *http.Response
+	var err error
+	for _, u := range urls {
+		r, e := client.Get(u)
+		if e != nil {
+			continue
+		}
+		if r.StatusCode == http.StatusOK {
+			resp = r
+			break
+		}
+		r.Body.Close()
+	}
+	if resp == nil {
+		return fmt.Errorf("所有候选图片均下载失败")
 	}
 	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("HTTP 错误: %d", resp.StatusCode)
-	}
 
 	img, format, err := image.Decode(resp.Body)
 	if err != nil {
@@ -87,23 +105,22 @@ func downloadAndConvertSingleImage(client *http.Client, url string, appid int) e
 	}
 	// 根据 appid 命名 .webp 图片
 	imgWebp := filepath.Join(SteamPath, strconv.Itoa(appid))
-	file, err := os.Create(imgWebp+".webp")
+	file, err := os.Create(imgWebp + ".webp")
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
 	err = webp.Encode(file, img, &webp.Options{
-		Quality: 75,
+		Quality:  75,
 		Lossless: false,
-		Exact: false,
+		Exact:    false,
 	})
-
 
 	return err
 }
 
-//将对应的 map 先注入, 根据 appid 判断是否已经下载过
+// 将对应的 map 先注入, 根据 appid 判断是否已经下载过
 func loadIndex(path string) (map[int]struct{}, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -120,7 +137,7 @@ func loadIndex(path string) (map[int]struct{}, error) {
 		var r struct {
 			RecordID int `json:"record_id"`
 		}
-		if err := json.Unmarshal(sc.Bytes(), &r); err == nil  {
+		if err := json.Unmarshal(sc.Bytes(), &r); err == nil {
 			idx[r.RecordID] = struct{}{}
 		}
 	}
@@ -129,7 +146,6 @@ func loadIndex(path string) (map[int]struct{}, error) {
 	}
 	return idx, nil
 }
-
 
 func appendIndex(appids []int) error {
 	filePath := filepath.Join(SteamPath, "record.ndjson")
@@ -150,8 +166,6 @@ func appendIndex(appids []int) error {
 			return err
 		}
 	}
-
-
 
 	return nil
 }

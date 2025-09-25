@@ -27,7 +27,8 @@ func SaveAsJSON[T Record](records []T, recordType RecordType) error {
 		return err
 	}
 
-	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+	// 为防止重复写入，采用覆盖写入（快照方式）
+	file, err := os.Create(fileName)
 	if err != nil {
 		return err
 	}
@@ -38,11 +39,7 @@ func SaveAsJSON[T Record](records []T, recordType RecordType) error {
 	enc.SetIndent("", " ")
 
 	for _, record := range records {
-		if record.GetHasDownload() {
-			// 说明这次请求不是第一次下载了
-			continue
-		}
-
+		// 直接输出所有记录，文件每次覆盖，避免重复追加
 		info := record.ToOutputInfo()
 		if err := enc.Encode(info); err != nil {
 			return fmt.Errorf("编码 json 时发生错误: %w", err)
