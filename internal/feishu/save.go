@@ -27,7 +27,7 @@ func SaveAsJSON[T Record](records []T, recordType RecordType) error {
 		return err
 	}
 
-	// 为防止重复写入，采用覆盖写入（快照方式）
+	// 采用覆盖写入（快照方式），并在输出前进行去重
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -38,8 +38,18 @@ func SaveAsJSON[T Record](records []T, recordType RecordType) error {
 	enc := json.NewEncoder(bw)
 	enc.SetIndent("", " ")
 
+	// 基于 RecordID 去重，保持稳定顺序
+	seen := make(map[string]struct{})
 	for _, record := range records {
-		// 直接输出所有记录，文件每次覆盖，避免重复追加
+		id := record.GetRecordID()
+		if id == "" {
+			// 没有 RecordID 的记录直接跳过，避免产生不可控重复
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
 		info := record.ToOutputInfo()
 		if err := enc.Encode(info); err != nil {
 			return fmt.Errorf("编码 json 时发生错误: %w", err)

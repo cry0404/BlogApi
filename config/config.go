@@ -45,7 +45,7 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("feishu.anime_table_id", "BLOGAPI_FEISHU_ANIME_TABLE_ID")
 	viper.BindEnv("feishu.app_token", "BLOGAPI_FEISHU_APP_TOKEN")
 	viper.BindEnv("steam.steam_id", "BLOGAPI_STEAM_ID")
-	viper.BindEnv("steam.steam_key", "BLOGAPI_STEAM_key")
+	viper.BindEnv("steam.steam_key", "BLOGAPI_STEAM_KEY")
 
 	viper.SetDefault("feishu.app_id", "")
 	viper.SetDefault("feishu.app_secret", "")
@@ -53,8 +53,8 @@ func LoadConfig() (*Config, error) {
 	viper.SetDefault("feishu.movie_table_id", "")
 	viper.SetDefault("feishu.anime_table_id", "")
 	viper.SetDefault("feishu.app_token", "")
-	viper.BindEnv("steam.steam_id", "")
-	viper.BindEnv("steam.steam_key", "")
+	viper.SetDefault("steam.steam_id", "")
+	viper.SetDefault("steam.steam_key", "")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

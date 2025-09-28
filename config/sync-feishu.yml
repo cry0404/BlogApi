@@ -22,31 +22,59 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version-file: 'go.work'
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Download dependencies (tools/blogapi)
+        run: go -C tools/blogapi mod download
 
-      - name: Ensure output directory
-        run: mkdir -p public/bookcase
+      - name: Ensure output directories
+        run: mkdir -p config public/bookcase public/anime public/movie public/steam
 
-      - name: Run sync (go run ./cmd)
+      - name: Run sync (root runs submodule)
         env:
           BLOGAPI_FEISHU_APP_ID: ${{ secrets.BLOGAPI_FEISHU_APP_ID }}
           BLOGAPI_FEISHU_APP_SECRET: ${{ secrets.BLOGAPI_FEISHU_APP_SECRET }}
-          BLOGAPI_FEISHU_TABLE_ID: ${{ secrets.BLOGAPI_FEISHU_TABLE_ID }}
+          BLOGAPI_FEISHU_BOOK_TABLE_ID: ${{ secrets.BLOGAPI_FEISHU_BOOK_TABLE_ID }}
+          BLOGAPI_FEISHU_MOVIE_TABLE_ID: ${{ secrets.BLOGAPI_FEISHU_MOVIE_TABLE_ID }}
+          BLOGAPI_FEISHU_ANIME_TABLE_ID: ${{ secrets.BLOGAPI_FEISHU_ANIME_TABLE_ID }}
           BLOGAPI_FEISHU_APP_TOKEN: ${{ secrets.BLOGAPI_FEISHU_APP_TOKEN }}
-          BLOGAPI_FEISHU_DOWNLOAD_DIR: public/bookcase
-        run: go run ./cmd
+          BLOGAPI_STEAM_ID: ${{ secrets.BLOGAPI_STEAM_ID }}
+          BLOGAPI_STEAM_KEY: ${{ secrets.BLOGAPI_STEAM_KEY }}
+          BLOGAPI_FEISHU_DOWNLOAD_DIR: ${{ github.workspace }}/public/bookcase
+        run: go run ./tools/blogapi/cmd
 
       - name: Update deployment timestamp
+        if: always()
         run: |
           echo "Last sync: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" > LAST_SYNC.md
           echo "Workflow run: ${{ github.run_number }}" >> LAST_SYNC.md
           echo "Trigger: ${{ github.event_name }}" >> LAST_SYNC.md
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "Status: Failed" >> LAST_SYNC.md
+          else
+            echo "Status: Success" >> LAST_SYNC.md
+          fi
+
+      - name: Check for changes
+        if: always()
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Debug changed files
+        if: always()
+        run: |
+          echo "Git status:" && git status
+          echo "\nChanged files:" && git diff --name-only
 
       - name: Commit and push changes
+        if: ${{ always() && steps.verify-changed-files.outputs.changed == 'true' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'Automated: Sync data from Feishu'
-          file_pattern: 'public/bookcase/**/* LAST_SYNC.md'
+          commit_message: 'Automated: Sync Feishu into Dustdream'
+          file_pattern: .
+
