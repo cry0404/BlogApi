@@ -1,5 +1,7 @@
 # BlogApi
+
 > GitHub Action 配置请参考 config 目录下的 sync-feishu.yml
+
 一个用于个人博客数据同步的 Go 应用程序，支持从飞书多维表格和 Steam 平台自动同步数据，并生成静态资源文件。
 
 ## 功能特性
