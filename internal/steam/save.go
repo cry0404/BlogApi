@@ -9,8 +9,9 @@ import (
 	"strconv"
 )
 
-//这里的展示逻辑应该是
+// 这里的展示逻辑应该是
 var configName string = "./config/steam.ndjson"
+
 func saveAsJson(games []Game) error {
 	//每周随机覆盖写入
 	file, err := os.Create(configName)
@@ -19,31 +20,29 @@ func saveAsJson(games []Game) error {
 	}
 	defer file.Close()
 	bw := bufio.NewWriter(file)
-	enc := json.NewEncoder(bw) 
+	enc := json.NewEncoder(bw)
 	enc.SetIndent("", " ")
-	for _ , game := range games {
+	for _, game := range games {
 		gameinfo := convertGameInfo(game)
-		
+
 		if err := enc.Encode(gameinfo); err != nil {
 			return fmt.Errorf("编码json时发生错误")
 		}
-	}	
+	}
 	if err := bw.Flush(); err != nil {
 		return fmt.Errorf("刷新失败: %w", err)
 	}
-	
 
 	return nil
 }
 
-
 func convertGameInfo(game Game) *GameInfo {
 
 	return &GameInfo{
-		Name: game.Name,
-		ImagePath: filepath.Join("public", "steam", strconv.Itoa(game.APPID) + ".webp"),
+		Name:            game.Name,
+		ImagePath:       filepath.Join("public", "steam", strconv.Itoa(game.APPID)+".webp"),
 		PlaytimeForever: game.PlaytimeForever,
 		RtimeLastPlayed: game.RtimeLastPlayed,
-		Comment: game.Comment,
+		Comment:         game.Comment,
 	}
 }

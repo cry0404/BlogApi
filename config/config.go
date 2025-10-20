@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 
+
 	"github.com/spf13/viper"
 )
 
@@ -10,6 +11,7 @@ type Config struct {
 	FeiShu   FeiShuConfig
 	Bilibili BiliBiliConfig
 	Steam    SteamConfig
+
 }
 
 type FeiShuConfig struct {

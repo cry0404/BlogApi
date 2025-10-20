@@ -1,17 +1,27 @@
-# BlogApi 配置文件示例
-# 复制此文件为 config.yaml 并填入实际配置值
+# BlogApi 配置文件
+# 个人博客数据同步工具配置
 
-# 飞书配置
+# 飞书配置 - 用于同步书籍、电影、动漫数据
 feishu:
-  app_id: "your_feishu_app_id"
-  app_secret: "your_feishu_app_secret"
-  table_id: "your_feishu_table_id"
-  app_token: "your_feishu_app_token"
+  # 飞书应用 ID
+  app_id: ""
+  # 飞书应用密钥
+  app_secret: ""
+  # 飞书应用 Token
+  app_token: ""
+  
+  # 数据表 ID 配置
+  book_table_id: ""      # 书籍记录表
+  movie_table_id: ""     # 电影记录表
+  anime_table_id: ""     # 动漫记录表
 
-# B站配置 (待实现)
-bilibili:
-  # 配置项待添加
-
-# Steam配置 (待实现)
+# Steam 配置 - 用于同步游戏数据
 steam:
+  # Steam Web API Key
+  steam_key: ""
+  # Steam 用户 ID (64位)
+  steam_id: ""
+
+# B站配置 (预留，暂未实现)
+bilibili:
   # 配置项待添加

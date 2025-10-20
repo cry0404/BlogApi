@@ -48,7 +48,22 @@ func DownloadImages[T Record](cfg *config.Config, records []T, recordType Record
 	for i := range records {
 		record := records[i]
 		if _, ok := downloaded[record.GetRecordID()]; ok {
+			// 记录已存在：标记已下载，并尽力回填 ImageDir，避免后续写出空值
 			record.SetHasDownload(true)
+			if p, ok := findExistingImagePath(record.GetCoverImage(), downloadDir); ok {
+				webpPath := imagePathFor(record.GetCoverImage(), ".webp", downloadDir)
+				if filepath.Ext(p) != ".webp" {
+					if _, err := os.Stat(webpPath); err != nil { // 不存在则尝试转换
+						_ = convertToWebp(p, webpPath)
+					}
+					record.SetImageDir(webpPath)
+				} else {
+					record.SetImageDir(p)
+				}
+			} else {
+				// 没找到现存文件时，按照约定的 token 计算 .webp 目标路径进行回填
+				record.SetImageDir(imagePathFor(record.GetCoverImage(), ".webp", downloadDir))
+			}
 			continue
 		}
 
