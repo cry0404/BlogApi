@@ -1,7 +1,8 @@
 # BlogApi
 
 > GitHub Action 配置请参考 config 目录下的 sync-feishu.yml
-> 你可以参考 https://ycnne3fqukbq.feishu.cn/base/XGk3bupgbaCEAPsRxAqc47ytnyg?table=tbllVnipZfa9cHoX&view=vewHYeOSGR 的多维表格模板 
+> 
+> 你可以参考 https://ycnne3fqukbq.feishu.cn/base/XGk3bupgbaCEAPsRxAqc47ytnyg?from=from_copylink 的多维表格模板 
 
 一个用于个人博客数据同步的 Go 应用程序，支持从飞书多维表格和 Steam 平台自动同步数据，并生成静态资源文件。
 
