@@ -1,14 +1,9 @@
 # BlogApi
 
 > GitHub Action 配置请参考 config 目录下的 sync-feishu.yml
-
----
-
 > 你可以参考 https://ycnne3fqukbq.feishu.cn/base/XGk3bupgbaCEAPsRxAqc47ytnyg?table=tbllVnipZfa9cHoX&view=vewHYeOSGR 的多维表格模板 
 
 一个用于个人博客数据同步的 Go 应用程序，支持从飞书多维表格和 Steam 平台自动同步数据，并生成静态资源文件。
-
-> TODO: 为 bilibili 豆瓣等平台实现抓取功能, 配置对应的 webhook, 可以通过配置手动调整时更新
 
 ## 功能特性
 
@@ -222,6 +217,8 @@ export BLOGAPI_STEAM_ID="your_steam_id"
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request 来改进这个项目。
+
+> TODO: 为 bilibili 豆瓣等平台实现抓取功能, 配置对应的 webhook, 可以通过配置手动调整时更新
 
 ---
 
