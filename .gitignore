@@ -6,4 +6,3 @@ config/config.yaml
 public/
 *.ndjson
 .DS_Store
-.github/
